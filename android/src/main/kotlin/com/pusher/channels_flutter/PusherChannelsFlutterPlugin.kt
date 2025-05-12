@@ -100,7 +100,24 @@ class PusherChannelsFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAw
             if (pusher != null) {
                 pusher!!.disconnect()
             }
+
             val options = PusherOptions()
+
+            HttpChannelAuthorizer authorizer = null
+            if (call.argument<String>("authEndpoint") != null) {
+                authorizer = HttpChannelAuthorizer(call.argument("authEndpoint"))
+                if (call.arguments<String>("authParams") != null) {
+                    var allParams = call.argument<Map<String, String>>("authParams")
+                    val headers = allParams['headers']
+                    if (headers != null) {
+                        authorizer.setHeaders(headers)
+                    }
+                }
+            } else if (call.argument<String>("authorizer") != null) {
+                authorizer = this
+            }
+            options.channelAuthorizer = authorizer
+
             if (call.argument<String>("cluster") != null) options.setCluster(call.argument("cluster"))
             if (call.argument<Boolean>("useTLS") != null) options.isUseTLS =
                 call.argument("useTLS")!!
@@ -112,9 +129,6 @@ class PusherChannelsFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAw
                 call.argument("maxReconnectionAttempts")!!
             if (call.argument<Int>("maxReconnectGapInSeconds") != null) options.maxReconnectGapInSeconds =
                 call.argument("maxReconnectGapInSeconds")!!
-            if (call.argument<String>("authEndpoint") != null) options.channelAuthorizer =
-                HttpChannelAuthorizer(call.argument("authEndpoint"))
-            if (call.argument<String>("authorizer") != null) options.channelAuthorizer = this
             if (call.argument<String>("proxy") != null) {
                 val (host, port) = call.argument<String>("proxy")!!.split(':')
                 options.proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress(host, port.toInt()))
