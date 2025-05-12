@@ -1,4 +1,5 @@
 import Foundation
+import PusherSwift
 
 public class DefaultAuthRequestBuilder: AuthRequestBuilderProtocol {
 
@@ -16,12 +17,10 @@ public class DefaultAuthRequestBuilder: AuthRequestBuilderProtocol {
 
         var request = URLRequest(url: URL(string: authUrlString)!)
         request.httpMethod = "POST"
-        if (headers != nil) {
-            for (key, value) in headers {
-                request.setValue(value, forHTTPHeaderField: key)
-            }
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
-        request.httpBody = "socket_id=\(socketId)&channel_name=\(encodedChannelName)".data(using: String.Encoding.utf8)
+        request.httpBody = "socket_id=\(socketID)&channel_name=\(encodedChannelName)".data(using: String.Encoding.utf8)
 
         return request
     }
