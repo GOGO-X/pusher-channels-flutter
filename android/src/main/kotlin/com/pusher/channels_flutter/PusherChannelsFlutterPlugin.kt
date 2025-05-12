@@ -103,14 +103,16 @@ class PusherChannelsFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAw
 
             val options = PusherOptions()
 
-            HttpChannelAuthorizer authorizer = null
+            var authorizer: ChannelAuthorizer? = null
             if (call.argument<String>("authEndpoint") != null) {
                 authorizer = HttpChannelAuthorizer(call.argument("authEndpoint"))
-                if (call.arguments<String>("authParams") != null) {
-                    var allParams = call.argument<Map<String, String>>("authParams")
-                    val headers = allParams['headers']
-                    if (headers != null) {
-                        authorizer.setHeaders(headers)
+                if (call.argument<String>("authParams") != null) {
+                    var allParams = call.argument<Map<String, Any?>>("authParams")
+                    if (allParams != null) {
+                        val headers = allParams["headers"] as? Map<String, String>
+                        if (headers != null) {
+                            authorizer.setHeaders(headers)
+                        }
                     }
                 }
             } else if (call.argument<String>("authorizer") != null) {
