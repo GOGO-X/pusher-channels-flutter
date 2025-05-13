@@ -41,7 +41,16 @@ public class SwiftPusherChannelsFlutterPlugin: NSObject, FlutterPlugin, PusherDe
     let args = call.arguments as! [String: Any]
     var authMethod: AuthMethod = .noMethod
     if args["authEndpoint"] is String {
-      authMethod = .endpoint(authEndpoint: args["authEndpoint"] as! String)
+      var headers: [String: String] = [:]
+      if let authParams = args["authParams"] as? [String: Any] {
+        headers = authParams["headers"] as? [String: String] ?? [:]
+      }
+
+      authMethod = .authRequestBuilder(authRequestBuilder: DefaultAuthRequestBuilder(
+        authUrlString: args["authEndpoint"] as! String,
+        headers: headers
+      ))
+      // authMethod = .endpoint(authEndpoint: args["authEndpoint"] as! String)
     } else if args["authorizer"] is Bool {
       authMethod = .authorizer(authorizer: self)
     }
